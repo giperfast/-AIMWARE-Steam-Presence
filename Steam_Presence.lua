@@ -2,7 +2,6 @@
     <meta name="author" content="giperfast, minindm">
     shit code prod.
 ]]--
-
 ffi.cdef[[
 	typedef struct {
 		void* pad;
@@ -114,11 +113,13 @@ local helper = helper_mt
 local steam_api = helper.FindPattern("client.dll", "FF 15 ?? ?? ?? ?? B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 6A", "steam_api_ctx_t**", 7)[0]
 local steam_friends = helper.GetClass(steam_api.steam_friends)
 local blank = "　"
+local presence_changed = 0;
+local eeb_value_backup = "";
 local ISteamFriends_mt = {	
 	SetRichPresence = steam_friends:GetVFunction(43, 'bool(__thiscall*)(void*, const char*, const char*)'),
 	ClearRichPresence = steam_friends:GetVFunction(44, 'void(__thiscall*)(void*)'),
 }
-presence_changed = 0;
+
 eeb_value = editbox:GetValue();
 local button = gui.Button(groupbox, "Set presence", function()
     eeb_value = editbox:GetValue();
@@ -126,11 +127,16 @@ local button = gui.Button(groupbox, "Set presence", function()
 end);
 
 local button = gui.Button(groupbox, "Clear presence", function()
+    eeb_value_backup = ""
+    eeb_value = ""
     ISteamFriends_mt.ClearRichPresence()
 end);
 
 function presence()
-    if editbox:GetValue() ~= "" then
+    if eeb_value ~= eeb_value_backup then
+        eeb_value_backup = eeb_value
+    end
+    if eeb_value_backup ~= "" then
         if (globals.RealTime() - presence_changed > 1) then
             ISteamFriends_mt.SetRichPresence("steam_display", "#bcast_teamvsteammap")
             ISteamFriends_mt.SetRichPresence("team1", eeb_value .. string.rep(blank, (113 - #eeb_value)/2 ))
@@ -144,3 +150,4 @@ function presence()
 end
 
 callbacks.Register("Draw", "presence", presence)
+
