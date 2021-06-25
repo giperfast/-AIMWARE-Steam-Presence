@@ -2,6 +2,7 @@
     <meta name="author" content="giperfast, minindm">
     shit code prod.
 ]]--
+
 ffi.cdef[[
 	typedef struct {
 		void* pad;
@@ -117,17 +118,29 @@ local ISteamFriends_mt = {
 	SetRichPresence = steam_friends:GetVFunction(43, 'bool(__thiscall*)(void*, const char*, const char*)'),
 	ClearRichPresence = steam_friends:GetVFunction(44, 'void(__thiscall*)(void*)'),
 }
-
+presence_changed = 0;
+eeb_value = editbox:GetValue();
 local button = gui.Button(groupbox, "Set presence", function()
-    local eeb_value = editbox:GetValue();
-    ISteamFriends_mt.SetRichPresence("steam_display", "#bcast_teamvsteammap")
-    ISteamFriends_mt.SetRichPresence("team1", eeb_value .. string.rep(blank, (113 - #eeb_value)/2 ))
-    ISteamFriends_mt.SetRichPresence("team2", string.rep(blank, 50))
-    ISteamFriends_mt.SetRichPresence("map", "de_dust2")
-    ISteamFriends_mt.SetRichPresence("game:mode", "competitive")
-    ISteamFriends_mt.SetRichPresence("system:access", "private")
+    eeb_value = editbox:GetValue();
+    presence_changed = globals.RealTime()-1;
 end);
 
 local button = gui.Button(groupbox, "Clear presence", function()
     ISteamFriends_mt.ClearRichPresence()
 end);
+
+function presence()
+    if editbox:GetValue() ~= "" then
+        if (globals.RealTime() - presence_changed > 1) then
+            ISteamFriends_mt.SetRichPresence("steam_display", "#bcast_teamvsteammap")
+            ISteamFriends_mt.SetRichPresence("team1", eeb_value .. string.rep(blank, (113 - #eeb_value)/2 ))
+            ISteamFriends_mt.SetRichPresence("team2", string.rep(blank, 50))
+            ISteamFriends_mt.SetRichPresence("map", "de_dust2")
+            ISteamFriends_mt.SetRichPresence("game:mode", "competitive")
+            ISteamFriends_mt.SetRichPresence("system:access", "private")
+            presence_changed = globals.RealTime();
+        end
+    end
+end
+
+callbacks.Register("Draw", "presence", presence)
