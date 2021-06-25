@@ -14,7 +14,7 @@ local ref = gui.Reference("Settings");
 local tab = gui.Tab(ref, "presense.tab", "Steam Presence");
 local groupbox = gui.Groupbox(tab, "Steam Presence", 16, 16, 287.5, 50);
 local editbox = gui.Editbox(groupbox, "presense.editbox", "Presence text");
-editbox:SetValue('AIMWARE BEST HACK')
+--editbox:SetValue('AIMWARE BEST HACK')
 
 local helper_mt = {}
 local interface_mt = {}
